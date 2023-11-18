@@ -43,6 +43,7 @@ type sshAction struct {
 	incomingData chan []byte
 	user         string
 	keyPath      string
+	proxyMode    bool
 }
 
 func NewSshCmd(p common.OptionsProvider) *cobra.Command {
@@ -64,6 +65,7 @@ func NewSshCmd(p common.OptionsProvider) *cobra.Command {
 	action.AddCommonFlags(sshCmd)
 	sshCmd.Flags().StringVarP(&action.user, "user", "u", "", "SSH username")
 	sshCmd.Flags().StringVarP(&action.keyPath, "key", "k", "", "SSH key path")
+	sshCmd.Flags().BoolVar(&action.proxyMode, "proxy-mode", false, "run in proxy mode, to be called from ssh")
 	return sshCmd
 }
 
@@ -101,7 +103,19 @@ func (self *sshAction) ssh(cmd *cobra.Command, _ []string) error {
 		dataC: self.incomingData,
 	}
 
+	if self.proxyMode {
+		return self.runProxy(conn)
+	}
+
 	return self.remoteShell(conn)
+}
+
+func (self *sshAction) runProxy(conn net.Conn) error {
+	go func() {
+		io.Copy(conn, os.Stdin)
+	}()
+	_, err := io.Copy(os.Stdout, conn)
+	return err
 }
 
 func sshAuthMethodFromFile(keyPath string) (ssh.AuthMethod, error) {
