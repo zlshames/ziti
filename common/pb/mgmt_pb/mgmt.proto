@@ -23,6 +23,12 @@ enum ContentType {
   InspectRequestType = 10048;
   InspectResponseType = 10049;
 
+  // SSH
+  SshTunnelRequestType = 10060;
+  SshTunnelResponseType = 10061;
+  SshTunnelDataType = 10062;
+  SshTunnelCloseType = 10063;
+
   // Snapshot db
   SnapshotDbRequestType = 10070;
 
@@ -51,6 +57,7 @@ enum Header {
   EventTypeHeader = 10;
   CtrlChanToggle = 11;
   ControllerId = 12;
+  SshTunnelConnIdHeader = 20;
 }
 
 //
@@ -142,6 +149,16 @@ message InspectResponse {
     string name = 2;
     string value = 3;
   }
+}
+
+message SshTunnelRequest {
+  string destination = 1;
+}
+
+message SshTunnelResponse {
+  bool success = 1;
+  uint32 connId = 2;
+  string msg = 3;
 }
 
 // Raft
