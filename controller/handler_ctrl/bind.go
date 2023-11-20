@@ -17,33 +17,40 @@
 package handler_ctrl
 
 import (
+	"github.com/openziti/ziti/common/sshpipe"
 	"github.com/sirupsen/logrus"
 	"time"
 
 	"github.com/michaelquigley/pfxlog"
 	"github.com/openziti/channel/v2"
 	"github.com/openziti/channel/v2/latency"
+	"github.com/openziti/foundation/v2/concurrenz"
+	"github.com/openziti/metrics"
 	"github.com/openziti/ziti/common/trace"
 	"github.com/openziti/ziti/controller/network"
 	"github.com/openziti/ziti/controller/xctrl"
 	metrics2 "github.com/openziti/ziti/router/metrics"
-	"github.com/openziti/foundation/v2/concurrenz"
-	"github.com/openziti/metrics"
 )
 
 type bindHandler struct {
-	heartbeatOptions *channel.HeartbeatOptions
-	router           *network.Router
-	network          *network.Network
-	xctrls           []xctrl.Xctrl
+	heartbeatOptions     *channel.HeartbeatOptions
+	router               *network.Router
+	network              *network.Network
+	xctrls               []xctrl.Xctrl
+	securityPipeRegistry *sshpipe.Registry
 }
 
-func newBindHandler(heartbeatOptions *channel.HeartbeatOptions, router *network.Router, network *network.Network, xctrls []xctrl.Xctrl) channel.BindHandler {
+func newBindHandler(heartbeatOptions *channel.HeartbeatOptions,
+	router *network.Router,
+	network *network.Network,
+	xctrls []xctrl.Xctrl,
+	securePipeRegistry *sshpipe.Registry) channel.BindHandler {
 	return &bindHandler{
-		heartbeatOptions: heartbeatOptions,
-		router:           router,
-		network:          network,
-		xctrls:           xctrls,
+		heartbeatOptions:     heartbeatOptions,
+		router:               router,
+		network:              network,
+		xctrls:               xctrls,
+		securityPipeRegistry: securePipeRegistry,
 	}
 }
 
@@ -71,6 +78,7 @@ func (self *bindHandler) BindChannel(binding channel.Binding) error {
 	binding.AddTypedReceiveHandler(newQuiesceRouterHandler(self.router, self.network))
 	binding.AddTypedReceiveHandler(newDequiesceRouterHandler(self.router, self.network))
 	binding.AddTypedReceiveHandler(newPingHandler())
+	binding.AddTypedReceiveHandler(newSshTunnelDataHandler(self.securityPipeRegistry))
 	binding.AddPeekHandler(trace.NewChannelPeekHandler(self.network.GetAppId(), binding.GetChannel(), self.network.GetTraceController()))
 	binding.AddPeekHandler(metrics2.NewCtrlChannelPeekHandler(self.router.Id, self.network.GetMetricsRegistry()))
 

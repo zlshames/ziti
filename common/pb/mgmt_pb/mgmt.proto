@@ -151,8 +151,16 @@ message InspectResponse {
   }
 }
 
+enum DestinationType {
+  Any = 0;
+  Controller = 1;
+  Router = 2;
+}
+
 message SshTunnelRequest {
-  string destination = 1;
+  DestinationType destinationType = 1;
+  string destination = 2;
+  uint64 timeoutMillis = 3;
 }
 
 message SshTunnelResponse {

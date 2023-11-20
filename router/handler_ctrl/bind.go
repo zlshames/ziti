@@ -17,16 +17,17 @@
 package handler_ctrl
 
 import (
+	"github.com/openziti/ziti/common/sshpipe"
 	"runtime/debug"
 	"time"
 
 	"github.com/michaelquigley/pfxlog"
 	"github.com/openziti/channel/v2"
+	"github.com/openziti/foundation/v2/goroutines"
 	"github.com/openziti/ziti/common/metrics"
+	"github.com/openziti/ziti/common/trace"
 	"github.com/openziti/ziti/router/env"
 	"github.com/openziti/ziti/router/forwarder"
-	"github.com/openziti/ziti/common/trace"
-	"github.com/openziti/foundation/v2/goroutines"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 )
@@ -36,6 +37,7 @@ type bindHandler struct {
 	forwarder          *forwarder.Forwarder
 	xgDialerPool       goroutines.Pool
 	ctrlAddressUpdater CtrlAddressUpdater
+	securePipeRegistry *sshpipe.Registry
 }
 
 func NewBindHandler(routerEnv env.RouterEnv, forwarder *forwarder.Forwarder, ctrlAddressUpdater CtrlAddressUpdater) (channel.BindHandler, error) {
@@ -62,6 +64,7 @@ func NewBindHandler(routerEnv env.RouterEnv, forwarder *forwarder.Forwarder, ctr
 		forwarder:          forwarder,
 		xgDialerPool:       xgDialerPool,
 		ctrlAddressUpdater: ctrlAddressUpdater,
+		securePipeRegistry: &sshpipe.Registry{},
 	}, nil
 }
 
@@ -89,6 +92,14 @@ func (self *bindHandler) BindChannel(binding channel.Binding) error {
 	if self.env.GetTraceHandler() != nil {
 		binding.AddPeekHandler(self.env.GetTraceHandler())
 	}
+
+	sshTunnelRegistry := &tunnelRegistry{}
+	sshTunnelRequestHandler := newSshTunnelHandler(sshTunnelRegistry, binding.GetChannel())
+	binding.AddTypedReceiveHandler(&channel.AsyncFunctionReceiveAdapter{
+		Type:    sshTunnelRequestHandler.ContentType(),
+		Handler: sshTunnelRequestHandler.HandleReceive,
+	})
+	binding.AddTypedReceiveHandler(newSshTunnelDataHandler(sshTunnelRegistry))
 
 	for _, x := range self.env.GetXrctrls() {
 		if err := binding.Bind(x); err != nil {

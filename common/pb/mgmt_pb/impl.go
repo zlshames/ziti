@@ -19,3 +19,11 @@ func (request *SshTunnelResponse) GetContentType() int32 {
 func (request *RaftMemberListResponse) GetContentType() int32 {
 	return int32(ContentType_RaftListMembersResponseType)
 }
+
+func (x DestinationType) CheckControllers() bool {
+	return x == DestinationType_Any || x == DestinationType_Controller
+}
+
+func (x DestinationType) CheckRouters() bool {
+	return x == DestinationType_Any || x == DestinationType_Router
+}

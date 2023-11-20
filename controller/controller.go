@@ -25,6 +25,7 @@ import (
 	"github.com/openziti/transport/v2"
 	"github.com/openziti/ziti/common/capabilities"
 	"github.com/openziti/ziti/common/config"
+	"github.com/openziti/ziti/common/sshpipe"
 	"github.com/openziti/ziti/controller/event"
 	"github.com/openziti/ziti/controller/events"
 	"github.com/openziti/ziti/controller/handler_peer_ctrl"
@@ -78,12 +79,13 @@ type Controller struct {
 	ctrlListener channel.UnderlayListener
 	mgmtListener channel.UnderlayListener
 
-	shutdownC         chan struct{}
-	isShutdown        atomic.Bool
-	agentBindHandlers []channel.BindHandler
-	metricsRegistry   metrics.Registry
-	versionProvider   versions.VersionProvider
-	eventDispatcher   *events.Dispatcher
+	shutdownC          chan struct{}
+	isShutdown         atomic.Bool
+	agentBindHandlers  []channel.BindHandler
+	metricsRegistry    metrics.Registry
+	versionProvider    versions.VersionProvider
+	eventDispatcher    *events.Dispatcher
+	securePipeRegistry *sshpipe.Registry
 }
 
 func (c *Controller) GetPeerSigners() []*x509.Certificate {
@@ -175,6 +177,7 @@ func NewController(cfg *Config, versionProvider versions.VersionProvider) (*Cont
 		metricsRegistry:     metricRegistry,
 		versionProvider:     versionProvider,
 		eventDispatcher:     events.NewDispatcher(shutdownC),
+		securePipeRegistry:  &sshpipe.Registry{},
 	}
 
 	if cfg.Raft != nil {
@@ -239,7 +242,7 @@ func (c *Controller) initWeb() {
 		logrus.WithError(err).Fatalf("failed to create health checks api factory")
 	}
 
-	if err := c.xweb.GetRegistry().Add(api_impl.NewManagementApiFactory(c.config.Id, c.network, c.xmgmts)); err != nil {
+	if err := c.xweb.GetRegistry().Add(api_impl.NewManagementApiFactory(c.config.Id, c.network, c.xmgmts, c.securePipeRegistry)); err != nil {
 		logrus.WithError(err).Fatalf("failed to create management api factory")
 	}
 
@@ -288,7 +291,12 @@ func (c *Controller) Run() error {
 		panic(err)
 	}
 
-	ctrlAccepter := handler_ctrl.NewCtrlAccepter(c.network, c.xctrls, c.config.Ctrl.Options.Options, c.config.Ctrl.Options.RouterHeartbeatOptions, c.config.Trace.Handler)
+	ctrlAccepter := handler_ctrl.NewCtrlAccepter(c.network,
+		c.xctrls,
+		c.config.Ctrl.Options.Options,
+		c.config.Ctrl.Options.RouterHeartbeatOptions,
+		c.config.Trace.Handler,
+		c.securePipeRegistry)
 
 	ctrlAcceptors := map[string]channel.UnderlayAcceptor{}
 	if c.raftController != nil {

@@ -308,6 +308,55 @@ func (TraceFilterType) EnumDescriptor() ([]byte, []int) {
 	return file_mgmt_proto_rawDescGZIP(), []int{3}
 }
 
+type DestinationType int32
+
+const (
+	DestinationType_Any        DestinationType = 0
+	DestinationType_Controller DestinationType = 1
+	DestinationType_Router     DestinationType = 2
+)
+
+// Enum value maps for DestinationType.
+var (
+	DestinationType_name = map[int32]string{
+		0: "Any",
+		1: "Controller",
+		2: "Router",
+	}
+	DestinationType_value = map[string]int32{
+		"Any":        0,
+		"Controller": 1,
+		"Router":     2,
+	}
+)
+
+func (x DestinationType) Enum() *DestinationType {
+	p := new(DestinationType)
+	*p = x
+	return p
+}
+
+func (x DestinationType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (DestinationType) Descriptor() protoreflect.EnumDescriptor {
+	return file_mgmt_proto_enumTypes[4].Descriptor()
+}
+
+func (DestinationType) Type() protoreflect.EnumType {
+	return &file_mgmt_proto_enumTypes[4]
+}
+
+func (x DestinationType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use DestinationType.Descriptor instead.
+func (DestinationType) EnumDescriptor() ([]byte, []int) {
+	return file_mgmt_proto_rawDescGZIP(), []int{4}
+}
+
 type StreamMetricsRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -857,7 +906,9 @@ type SshTunnelRequest struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Destination string `protobuf:"bytes,1,opt,name=destination,proto3" json:"destination,omitempty"`
+	DestinationType DestinationType `protobuf:"varint,1,opt,name=destinationType,proto3,enum=ziti.mgmt_pb.DestinationType" json:"destinationType,omitempty"`
+	Destination     string          `protobuf:"bytes,2,opt,name=destination,proto3" json:"destination,omitempty"`
+	TimeoutMillis   uint64          `protobuf:"varint,3,opt,name=timeoutMillis,proto3" json:"timeoutMillis,omitempty"`
 }
 
 func (x *SshTunnelRequest) Reset() {
@@ -892,11 +943,25 @@ func (*SshTunnelRequest) Descriptor() ([]byte, []int) {
 	return file_mgmt_proto_rawDescGZIP(), []int{8}
 }
 
+func (x *SshTunnelRequest) GetDestinationType() DestinationType {
+	if x != nil {
+		return x.DestinationType
+	}
+	return DestinationType_Any
+}
+
 func (x *SshTunnelRequest) GetDestination() string {
 	if x != nil {
 		return x.Destination
 	}
 	return ""
+}
+
+func (x *SshTunnelRequest) GetTimeoutMillis() uint64 {
+	if x != nil {
+		return x.TimeoutMillis
+	}
+	return 0
 }
 
 type SshTunnelResponse struct {
@@ -1436,11 +1501,18 @@ var file_mgmt_proto_rawDesc = []byte{
 	0x70, 0x70, 0x49, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x61, 0x70, 0x70, 0x49,
 	0x64, 0x12, 0x12, 0x0a, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52,
 	0x04, 0x6e, 0x61, 0x6d, 0x65, 0x12, 0x14, 0x0a, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x18, 0x03,
-	0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x22, 0x34, 0x0a, 0x10, 0x53,
-	0x73, 0x68, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12,
-	0x20, 0x0a, 0x0b, 0x64, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x18, 0x01,
-	0x20, 0x01, 0x28, 0x09, 0x52, 0x0b, 0x64, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f,
-	0x6e, 0x22, 0x57, 0x0a, 0x11, 0x53, 0x73, 0x68, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x52, 0x65,
+	0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x22, 0xa3, 0x01, 0x0a, 0x10,
+	0x53, 0x73, 0x68, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74,
+	0x12, 0x47, 0x0a, 0x0f, 0x64, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x54,
+	0x79, 0x70, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0e, 0x32, 0x1d, 0x2e, 0x7a, 0x69, 0x74, 0x69,
+	0x2e, 0x6d, 0x67, 0x6d, 0x74, 0x5f, 0x70, 0x62, 0x2e, 0x44, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x61,
+	0x74, 0x69, 0x6f, 0x6e, 0x54, 0x79, 0x70, 0x65, 0x52, 0x0f, 0x64, 0x65, 0x73, 0x74, 0x69, 0x6e,
+	0x61, 0x74, 0x69, 0x6f, 0x6e, 0x54, 0x79, 0x70, 0x65, 0x12, 0x20, 0x0a, 0x0b, 0x64, 0x65, 0x73,
+	0x74, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0b,
+	0x64, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x12, 0x24, 0x0a, 0x0d, 0x74,
+	0x69, 0x6d, 0x65, 0x6f, 0x75, 0x74, 0x4d, 0x69, 0x6c, 0x6c, 0x69, 0x73, 0x18, 0x03, 0x20, 0x01,
+	0x28, 0x04, 0x52, 0x0d, 0x74, 0x69, 0x6d, 0x65, 0x6f, 0x75, 0x74, 0x4d, 0x69, 0x6c, 0x6c, 0x69,
+	0x73, 0x22, 0x57, 0x0a, 0x11, 0x53, 0x73, 0x68, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x52, 0x65,
 	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x18, 0x0a, 0x07, 0x73, 0x75, 0x63, 0x63, 0x65, 0x73,
 	0x73, 0x18, 0x01, 0x20, 0x01, 0x28, 0x08, 0x52, 0x07, 0x73, 0x75, 0x63, 0x63, 0x65, 0x73, 0x73,
 	0x12, 0x16, 0x0a, 0x06, 0x63, 0x6f, 0x6e, 0x6e, 0x49, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0d,
@@ -1532,10 +1604,14 @@ var file_mgmt_proto_rawDesc = []byte{
 	0x0a, 0x0d, 0x43, 0x69, 0x72, 0x63, 0x75, 0x69, 0x74, 0x46, 0x61, 0x69, 0x6c, 0x65, 0x64, 0x10,
 	0x04, 0x2a, 0x2b, 0x0a, 0x0f, 0x54, 0x72, 0x61, 0x63, 0x65, 0x46, 0x69, 0x6c, 0x74, 0x65, 0x72,
 	0x54, 0x79, 0x70, 0x65, 0x12, 0x0b, 0x0a, 0x07, 0x45, 0x58, 0x43, 0x4c, 0x55, 0x44, 0x45, 0x10,
-	0x00, 0x12, 0x0b, 0x0a, 0x07, 0x49, 0x4e, 0x43, 0x4c, 0x55, 0x44, 0x45, 0x10, 0x01, 0x42, 0x27,
-	0x5a, 0x25, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x6f, 0x70, 0x65,
-	0x6e, 0x7a, 0x69, 0x74, 0x69, 0x2f, 0x66, 0x61, 0x62, 0x72, 0x69, 0x63, 0x2f, 0x70, 0x62, 0x2f,
-	0x6d, 0x67, 0x6d, 0x74, 0x5f, 0x70, 0x62, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x00, 0x12, 0x0b, 0x0a, 0x07, 0x49, 0x4e, 0x43, 0x4c, 0x55, 0x44, 0x45, 0x10, 0x01, 0x2a, 0x36,
+	0x0a, 0x0f, 0x44, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x54, 0x79, 0x70,
+	0x65, 0x12, 0x07, 0x0a, 0x03, 0x41, 0x6e, 0x79, 0x10, 0x00, 0x12, 0x0e, 0x0a, 0x0a, 0x43, 0x6f,
+	0x6e, 0x74, 0x72, 0x6f, 0x6c, 0x6c, 0x65, 0x72, 0x10, 0x01, 0x12, 0x0a, 0x0a, 0x06, 0x52, 0x6f,
+	0x75, 0x74, 0x65, 0x72, 0x10, 0x02, 0x42, 0x27, 0x5a, 0x25, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62,
+	0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x6f, 0x70, 0x65, 0x6e, 0x7a, 0x69, 0x74, 0x69, 0x2f, 0x66, 0x61,
+	0x62, 0x72, 0x69, 0x63, 0x2f, 0x70, 0x62, 0x2f, 0x6d, 0x67, 0x6d, 0x74, 0x5f, 0x70, 0x62, 0x62,
+	0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -1550,56 +1626,58 @@ func file_mgmt_proto_rawDescGZIP() []byte {
 	return file_mgmt_proto_rawDescData
 }
 
-var file_mgmt_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
+var file_mgmt_proto_enumTypes = make([]protoimpl.EnumInfo, 5)
 var file_mgmt_proto_msgTypes = make([]protoimpl.MessageInfo, 20)
 var file_mgmt_proto_goTypes = []interface{}{
 	(ContentType)(0),                           // 0: ziti.mgmt_pb.ContentType
 	(Header)(0),                                // 1: ziti.mgmt_pb.Header
 	(StreamCircuitEventType)(0),                // 2: ziti.mgmt_pb.StreamCircuitEventType
 	(TraceFilterType)(0),                       // 3: ziti.mgmt_pb.TraceFilterType
-	(*StreamMetricsRequest)(nil),               // 4: ziti.mgmt_pb.StreamMetricsRequest
-	(*StreamMetricsEvent)(nil),                 // 5: ziti.mgmt_pb.StreamMetricsEvent
-	(*Path)(nil),                               // 6: ziti.mgmt_pb.Path
-	(*StreamCircuitsEvent)(nil),                // 7: ziti.mgmt_pb.StreamCircuitsEvent
-	(*ToggleCircuitTracesRequest)(nil),         // 8: ziti.mgmt_pb.ToggleCircuitTracesRequest
-	(*StreamTracesRequest)(nil),                // 9: ziti.mgmt_pb.StreamTracesRequest
-	(*InspectRequest)(nil),                     // 10: ziti.mgmt_pb.InspectRequest
-	(*InspectResponse)(nil),                    // 11: ziti.mgmt_pb.InspectResponse
-	(*SshTunnelRequest)(nil),                   // 12: ziti.mgmt_pb.SshTunnelRequest
-	(*SshTunnelResponse)(nil),                  // 13: ziti.mgmt_pb.SshTunnelResponse
-	(*RaftMember)(nil),                         // 14: ziti.mgmt_pb.RaftMember
-	(*RaftMemberListResponse)(nil),             // 15: ziti.mgmt_pb.RaftMemberListResponse
-	(*StreamMetricsRequest_MetricMatcher)(nil), // 16: ziti.mgmt_pb.StreamMetricsRequest.MetricMatcher
-	nil, // 17: ziti.mgmt_pb.StreamMetricsEvent.TagsEntry
-	nil, // 18: ziti.mgmt_pb.StreamMetricsEvent.IntMetricsEntry
-	nil, // 19: ziti.mgmt_pb.StreamMetricsEvent.FloatMetricsEntry
-	(*StreamMetricsEvent_IntervalMetric)(nil), // 20: ziti.mgmt_pb.StreamMetricsEvent.IntervalMetric
-	nil,                                  // 21: ziti.mgmt_pb.StreamMetricsEvent.MetricGroupEntry
-	nil,                                  // 22: ziti.mgmt_pb.StreamMetricsEvent.IntervalMetric.ValuesEntry
-	(*InspectResponse_InspectValue)(nil), // 23: ziti.mgmt_pb.InspectResponse.InspectValue
-	(*timestamppb.Timestamp)(nil),        // 24: google.protobuf.Timestamp
+	(DestinationType)(0),                       // 4: ziti.mgmt_pb.DestinationType
+	(*StreamMetricsRequest)(nil),               // 5: ziti.mgmt_pb.StreamMetricsRequest
+	(*StreamMetricsEvent)(nil),                 // 6: ziti.mgmt_pb.StreamMetricsEvent
+	(*Path)(nil),                               // 7: ziti.mgmt_pb.Path
+	(*StreamCircuitsEvent)(nil),                // 8: ziti.mgmt_pb.StreamCircuitsEvent
+	(*ToggleCircuitTracesRequest)(nil),         // 9: ziti.mgmt_pb.ToggleCircuitTracesRequest
+	(*StreamTracesRequest)(nil),                // 10: ziti.mgmt_pb.StreamTracesRequest
+	(*InspectRequest)(nil),                     // 11: ziti.mgmt_pb.InspectRequest
+	(*InspectResponse)(nil),                    // 12: ziti.mgmt_pb.InspectResponse
+	(*SshTunnelRequest)(nil),                   // 13: ziti.mgmt_pb.SshTunnelRequest
+	(*SshTunnelResponse)(nil),                  // 14: ziti.mgmt_pb.SshTunnelResponse
+	(*RaftMember)(nil),                         // 15: ziti.mgmt_pb.RaftMember
+	(*RaftMemberListResponse)(nil),             // 16: ziti.mgmt_pb.RaftMemberListResponse
+	(*StreamMetricsRequest_MetricMatcher)(nil), // 17: ziti.mgmt_pb.StreamMetricsRequest.MetricMatcher
+	nil, // 18: ziti.mgmt_pb.StreamMetricsEvent.TagsEntry
+	nil, // 19: ziti.mgmt_pb.StreamMetricsEvent.IntMetricsEntry
+	nil, // 20: ziti.mgmt_pb.StreamMetricsEvent.FloatMetricsEntry
+	(*StreamMetricsEvent_IntervalMetric)(nil), // 21: ziti.mgmt_pb.StreamMetricsEvent.IntervalMetric
+	nil,                                  // 22: ziti.mgmt_pb.StreamMetricsEvent.MetricGroupEntry
+	nil,                                  // 23: ziti.mgmt_pb.StreamMetricsEvent.IntervalMetric.ValuesEntry
+	(*InspectResponse_InspectValue)(nil), // 24: ziti.mgmt_pb.InspectResponse.InspectValue
+	(*timestamppb.Timestamp)(nil),        // 25: google.protobuf.Timestamp
 }
 var file_mgmt_proto_depIdxs = []int32{
-	16, // 0: ziti.mgmt_pb.StreamMetricsRequest.matchers:type_name -> ziti.mgmt_pb.StreamMetricsRequest.MetricMatcher
-	24, // 1: ziti.mgmt_pb.StreamMetricsEvent.timestamp:type_name -> google.protobuf.Timestamp
-	17, // 2: ziti.mgmt_pb.StreamMetricsEvent.tags:type_name -> ziti.mgmt_pb.StreamMetricsEvent.TagsEntry
-	18, // 3: ziti.mgmt_pb.StreamMetricsEvent.intMetrics:type_name -> ziti.mgmt_pb.StreamMetricsEvent.IntMetricsEntry
-	19, // 4: ziti.mgmt_pb.StreamMetricsEvent.floatMetrics:type_name -> ziti.mgmt_pb.StreamMetricsEvent.FloatMetricsEntry
-	20, // 5: ziti.mgmt_pb.StreamMetricsEvent.intervalMetrics:type_name -> ziti.mgmt_pb.StreamMetricsEvent.IntervalMetric
-	21, // 6: ziti.mgmt_pb.StreamMetricsEvent.metricGroup:type_name -> ziti.mgmt_pb.StreamMetricsEvent.MetricGroupEntry
+	17, // 0: ziti.mgmt_pb.StreamMetricsRequest.matchers:type_name -> ziti.mgmt_pb.StreamMetricsRequest.MetricMatcher
+	25, // 1: ziti.mgmt_pb.StreamMetricsEvent.timestamp:type_name -> google.protobuf.Timestamp
+	18, // 2: ziti.mgmt_pb.StreamMetricsEvent.tags:type_name -> ziti.mgmt_pb.StreamMetricsEvent.TagsEntry
+	19, // 3: ziti.mgmt_pb.StreamMetricsEvent.intMetrics:type_name -> ziti.mgmt_pb.StreamMetricsEvent.IntMetricsEntry
+	20, // 4: ziti.mgmt_pb.StreamMetricsEvent.floatMetrics:type_name -> ziti.mgmt_pb.StreamMetricsEvent.FloatMetricsEntry
+	21, // 5: ziti.mgmt_pb.StreamMetricsEvent.intervalMetrics:type_name -> ziti.mgmt_pb.StreamMetricsEvent.IntervalMetric
+	22, // 6: ziti.mgmt_pb.StreamMetricsEvent.metricGroup:type_name -> ziti.mgmt_pb.StreamMetricsEvent.MetricGroupEntry
 	2,  // 7: ziti.mgmt_pb.StreamCircuitsEvent.eventType:type_name -> ziti.mgmt_pb.StreamCircuitEventType
-	6,  // 8: ziti.mgmt_pb.StreamCircuitsEvent.path:type_name -> ziti.mgmt_pb.Path
+	7,  // 8: ziti.mgmt_pb.StreamCircuitsEvent.path:type_name -> ziti.mgmt_pb.Path
 	3,  // 9: ziti.mgmt_pb.StreamTracesRequest.filterType:type_name -> ziti.mgmt_pb.TraceFilterType
-	23, // 10: ziti.mgmt_pb.InspectResponse.values:type_name -> ziti.mgmt_pb.InspectResponse.InspectValue
-	14, // 11: ziti.mgmt_pb.RaftMemberListResponse.members:type_name -> ziti.mgmt_pb.RaftMember
-	24, // 12: ziti.mgmt_pb.StreamMetricsEvent.IntervalMetric.intervalStartUTC:type_name -> google.protobuf.Timestamp
-	24, // 13: ziti.mgmt_pb.StreamMetricsEvent.IntervalMetric.intervalEndUTC:type_name -> google.protobuf.Timestamp
-	22, // 14: ziti.mgmt_pb.StreamMetricsEvent.IntervalMetric.values:type_name -> ziti.mgmt_pb.StreamMetricsEvent.IntervalMetric.ValuesEntry
-	15, // [15:15] is the sub-list for method output_type
-	15, // [15:15] is the sub-list for method input_type
-	15, // [15:15] is the sub-list for extension type_name
-	15, // [15:15] is the sub-list for extension extendee
-	0,  // [0:15] is the sub-list for field type_name
+	24, // 10: ziti.mgmt_pb.InspectResponse.values:type_name -> ziti.mgmt_pb.InspectResponse.InspectValue
+	4,  // 11: ziti.mgmt_pb.SshTunnelRequest.destinationType:type_name -> ziti.mgmt_pb.DestinationType
+	15, // 12: ziti.mgmt_pb.RaftMemberListResponse.members:type_name -> ziti.mgmt_pb.RaftMember
+	25, // 13: ziti.mgmt_pb.StreamMetricsEvent.IntervalMetric.intervalStartUTC:type_name -> google.protobuf.Timestamp
+	25, // 14: ziti.mgmt_pb.StreamMetricsEvent.IntervalMetric.intervalEndUTC:type_name -> google.protobuf.Timestamp
+	23, // 15: ziti.mgmt_pb.StreamMetricsEvent.IntervalMetric.values:type_name -> ziti.mgmt_pb.StreamMetricsEvent.IntervalMetric.ValuesEntry
+	16, // [16:16] is the sub-list for method output_type
+	16, // [16:16] is the sub-list for method input_type
+	16, // [16:16] is the sub-list for extension type_name
+	16, // [16:16] is the sub-list for extension extendee
+	0,  // [0:16] is the sub-list for field type_name
 }
 
 func init() { file_mgmt_proto_init() }
@@ -1795,7 +1873,7 @@ func file_mgmt_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_mgmt_proto_rawDesc,
-			NumEnums:      4,
+			NumEnums:      5,
 			NumMessages:   20,
 			NumExtensions: 0,
 			NumServices:   0,

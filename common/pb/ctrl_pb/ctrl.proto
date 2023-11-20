@@ -39,9 +39,21 @@ enum ContentType {
 
   PeerStateChangeRequestType = 1050;
 
+  // SSH
+  SshTunnelRequestType = 1060;
+  SshTunnelResponseType = 1061;
+  SshTunnelDataType = 1062;
+  SshTunnelCloseType = 1063;
+
   ListenersHeader = 10;
   RouterMetadataHeader = 11;
   CapabilitiesHeader = 12;
+
+}
+
+enum Header {
+  HeaderZero = 0;
+  SshTunnelConnIdHeader = 20;
 }
 
 enum RouterCapability {
@@ -255,4 +267,15 @@ message PeerStateChanges {
 
 message RouterMetadata {
   repeated RouterCapability capabilities = 1;
+}
+
+message SshTunnelRequest {
+  string destination = 1;
+  uint64 timeoutMillis = 2;
+  uint32 connId = 3;
+}
+
+message SshTunnelResponse {
+  bool success = 1;
+  string msg = 2;
 }

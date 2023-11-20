@@ -55,10 +55,10 @@ func NewSshCmd(p common.OptionsProvider) *cobra.Command {
 	}
 
 	sshCmd := &cobra.Command{
-		Use:     "ssh",
-		Short:   "ssh to ziti comopnents",
+		Use:     "ssh <destination>",
+		Short:   "ssh to ziti components",
 		Example: "ziti fabric ssh ctrl",
-		Args:    cobra.ExactArgs(0),
+		Args:    cobra.ExactArgs(1),
 		RunE:    action.ssh,
 	}
 
@@ -69,14 +69,9 @@ func NewSshCmd(p common.OptionsProvider) *cobra.Command {
 	return sshCmd
 }
 
-func (self *sshAction) ssh(cmd *cobra.Command, _ []string) error {
-	closeNotify := make(chan struct{})
-
+func (self *sshAction) ssh(cmd *cobra.Command, args []string) error {
 	bindHandler := func(binding channel.Binding) error {
 		binding.AddReceiveHandlerF(int32(mgmt_pb.ContentType_SshTunnelDataType), self.receiveData)
-		binding.AddCloseHandler(channel.CloseHandlerF(func(ch channel.Channel) {
-			close(closeNotify)
-		}))
 		return nil
 	}
 
@@ -85,7 +80,11 @@ func (self *sshAction) ssh(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
-	sshRequest := &mgmt_pb.SshTunnelRequest{}
+	sshRequest := &mgmt_pb.SshTunnelRequest{
+		DestinationType: mgmt_pb.DestinationType_Any,
+		Destination:     args[0],
+		TimeoutMillis:   uint64(self.Timeout * 1000),
+	}
 	resp, err := protobufs.MarshalTyped(sshRequest).WithTimeout(time.Duration(self.Timeout) * time.Second).SendForReply(ch)
 	sshResp := &mgmt_pb.SshTunnelResponse{}
 	err = protobufs.TypedResponse(sshResp).Unmarshall(resp, err)
@@ -111,10 +110,25 @@ func (self *sshAction) ssh(cmd *cobra.Command, _ []string) error {
 }
 
 func (self *sshAction) runProxy(conn net.Conn) error {
+	errC := make(chan error, 2)
 	go func() {
-		io.Copy(conn, os.Stdin)
+		_, err := io.Copy(conn, os.Stdin)
+		errC <- err
 	}()
-	_, err := io.Copy(os.Stdout, conn)
+
+	go func() {
+		_, err := io.Copy(os.Stdout, conn)
+		errC <- err
+	}()
+
+	err := <-errC
+	if err == nil {
+		select {
+		case err = <-errC:
+		default:
+		}
+	}
+
 	return err
 }
 

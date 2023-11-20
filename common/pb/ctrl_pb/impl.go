@@ -99,3 +99,11 @@ func (request *UpdateCtrlAddresses) GetContentType() int32 {
 func (request *PeerStateChanges) GetContentType() int32 {
 	return int32(ContentType_PeerStateChangeRequestType)
 }
+
+func (request *SshTunnelRequest) GetContentType() int32 {
+	return int32(ContentType_SshTunnelRequestType)
+}
+
+func (request *SshTunnelResponse) GetContentType() int32 {
+	return int32(ContentType_SshTunnelResponseType)
+}

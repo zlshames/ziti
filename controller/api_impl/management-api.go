@@ -24,14 +24,15 @@ import (
 	"github.com/michaelquigley/pfxlog"
 	"github.com/openziti/channel/v2"
 	"github.com/openziti/channel/v2/websockets"
+	"github.com/openziti/identity"
+	"github.com/openziti/xweb/v2"
+	"github.com/openziti/ziti/common/sshpipe"
 	"github.com/openziti/ziti/controller/handler_mgmt"
 	"github.com/openziti/ziti/controller/network"
-	"github.com/openziti/ziti/controller/xmgmt"
 	"github.com/openziti/ziti/controller/rest_client"
 	"github.com/openziti/ziti/controller/rest_server"
 	"github.com/openziti/ziti/controller/rest_server/operations"
-	"github.com/openziti/identity"
-	"github.com/openziti/xweb/v2"
+	"github.com/openziti/ziti/controller/xmgmt"
 	"net/http"
 	"strings"
 )
@@ -43,21 +44,23 @@ const (
 var _ xweb.ApiHandlerFactory = &ManagementApiFactory{}
 
 type ManagementApiFactory struct {
-	InitFunc func(managementApi *ManagementApiHandler) error
-	network  *network.Network
-	nodeId   identity.Identity
-	xmgmts   []xmgmt.Xmgmt
+	InitFunc           func(managementApi *ManagementApiHandler) error
+	network            *network.Network
+	nodeId             identity.Identity
+	xmgmts             []xmgmt.Xmgmt
+	securePipeRegistry *sshpipe.Registry
 }
 
 func (factory *ManagementApiFactory) Validate(_ *xweb.InstanceConfig) error {
 	return nil
 }
 
-func NewManagementApiFactory(nodeId identity.Identity, network *network.Network, xmgmts []xmgmt.Xmgmt) *ManagementApiFactory {
+func NewManagementApiFactory(nodeId identity.Identity, network *network.Network, xmgmts []xmgmt.Xmgmt, securityPipeRegistry *sshpipe.Registry) *ManagementApiFactory {
 	return &ManagementApiFactory{
-		network: network,
-		nodeId:  nodeId,
-		xmgmts:  xmgmts,
+		network:            network,
+		nodeId:             nodeId,
+		xmgmts:             xmgmts,
+		securePipeRegistry: securityPipeRegistry,
 	}
 }
 
@@ -91,7 +94,7 @@ func (factory *ManagementApiFactory) New(_ *xweb.ServerConfig, options map[inter
 		return nil, err
 	}
 
-	managementApiHandler.bindHandler = handler_mgmt.NewBindHandler(factory.network, factory.xmgmts)
+	managementApiHandler.bindHandler = handler_mgmt.NewBindHandler(factory.network, factory.xmgmts, factory.securePipeRegistry)
 
 	if factory.InitFunc != nil {
 		if err := factory.InitFunc(managementApiHandler); err != nil {

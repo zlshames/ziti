@@ -18,22 +18,23 @@ package handler_mgmt
 
 import (
 	"github.com/openziti/channel/v2"
+	"github.com/openziti/ziti/common/sshpipe"
 	"github.com/openziti/ziti/common/trace"
 	"github.com/openziti/ziti/controller/network"
 	"github.com/openziti/ziti/controller/xmgmt"
 )
 
 type BindHandler struct {
-	network          *network.Network
-	xmgmts           []xmgmt.Xmgmt
-	sshTunnelManager *sshTunnelManager
+	network            *network.Network
+	xmgmts             []xmgmt.Xmgmt
+	securePipeRegistry *sshpipe.Registry
 }
 
-func NewBindHandler(network *network.Network, xmgmts []xmgmt.Xmgmt) channel.BindHandler {
+func NewBindHandler(network *network.Network, xmgmts []xmgmt.Xmgmt, securePipeRegistry *sshpipe.Registry) channel.BindHandler {
 	return &BindHandler{
-		network:          network,
-		xmgmts:           xmgmts,
-		sshTunnelManager: &sshTunnelManager{},
+		network:            network,
+		xmgmts:             xmgmts,
+		securePipeRegistry: securePipeRegistry,
 	}
 }
 
@@ -52,13 +53,13 @@ func (bindHandler *BindHandler) BindChannel(binding channel.Binding) error {
 
 	binding.AddPeekHandler(trace.NewChannelPeekHandler(bindHandler.network.GetAppId(), binding.GetChannel(), bindHandler.network.GetTraceController()))
 
-	sshTunnelRequestHandler := newSshTunnelHandler(bindHandler.network, bindHandler.sshTunnelManager)
+	sshTunnelRequestHandler := newSshTunnelHandler(bindHandler.network, bindHandler.securePipeRegistry, binding.GetChannel())
 	binding.AddTypedReceiveHandler(&channel.AsyncFunctionReceiveAdapter{
 		Type:    sshTunnelRequestHandler.ContentType(),
 		Handler: sshTunnelRequestHandler.HandleReceive,
 	})
 	binding.AddCloseHandler(sshTunnelRequestHandler)
-	binding.AddTypedReceiveHandler(newSshTunnelDataHandler(bindHandler.sshTunnelManager))
+	binding.AddTypedReceiveHandler(newSshTunnelDataHandler(bindHandler.securePipeRegistry))
 
 	xmgmtDone := make(chan struct{})
 	for _, x := range bindHandler.xmgmts {
