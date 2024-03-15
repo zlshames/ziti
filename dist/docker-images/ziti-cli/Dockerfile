@@ -57,9 +57,6 @@ RUN chmod 0755 /usr/local/bin/ziti
 
 RUN /usr/local/bin/ziti completion bash > /etc/bash_completion.d/ziti_cli
 
-COPY ${DOCKER_BUILD_DIR}/entrypoint.sh /
-RUN chmod +x /entrypoint.sh
 USER ziggy
 COPY ${DOCKER_BUILD_DIR}/bashrc /home/ziggy/.bashrc
-ENTRYPOINT [ "/entrypoint.sh" ]
-CMD [ "ziti" ]
+ENTRYPOINT [ "ziti" ]
