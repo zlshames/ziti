@@ -3,7 +3,7 @@
 set -o errexit
 set -o nounset
 set -o pipefail
-set -o xtrace
+# set -o xtrace
 
 install() {
     checkSystemdVersion $MINIMUM_SYSTEMD_VERSION
