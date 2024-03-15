@@ -86,12 +86,9 @@ promptCtrlAdvertisedAddress() {
 
 promptRouterAdvertisedAddress() {
     if [ -z "${ZITI_ROUTER_ADVERTISED_ADDRESS:-}" ]; then
-        if ZITI_ROUTER_ADVERTISED_ADDRESS="$(prompt 'Enter the advertised address for this router: ')"; then
-            if [ -n "${ZITI_ROUTER_ADVERTISED_ADDRESS:-}" ]; then
-                sed -Ei "s/^(ZITI_ROUTER_ADVERTISED_ADDRESS)=.*/\1=${ZITI_ROUTER_ADVERTISED_ADDRESS}/" /opt/openziti/etc/router/env
-            fi
-        else
-            echo "WARN: missing ZITI_ROUTER_ADVERTISED_ADDRESS in /opt/openziti/etc/router/env" >&2
+        DEFAULT_ADDR="${HOSTNAME:=$(hostname -f)}}"
+        if ZITI_ROUTER_ADVERTISED_ADDRESS="$(prompt "Enter the advertised address for this router [$DEFAULT_ADDR]: " || echo "$DEFAULT_ADDR")"; then
+            sed -Ei "s/^(ZITI_ROUTER_ADVERTISED_ADDRESS)=.*/\1=${ZITI_ROUTER_ADVERTISED_ADDRESS}/" /opt/openziti/etc/router/env
         fi
     fi
 }
