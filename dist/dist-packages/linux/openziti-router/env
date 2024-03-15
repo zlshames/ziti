@@ -1,5 +1,7 @@
 #
-# this is a systemd env file allowing simple assignments for ziti-controller.service environment
+# this is a systemd env file allowing simple assignments for ziti-controller.service environment and serves as an answer
+# file for first run prompts and unattended installations; only variables that are consumed by the ziti binary are
+# expected here to preserve the separation between the service unit and the binary
 #
 
 #
@@ -15,8 +17,8 @@ ZITI_CTRL_ADVERTISED_PORT=1280
 # token and set "LoadCredential=ZITI_ENROLL_TOKEN:/opt/openziti/etc/router/.token" in
 # /lib/systemd/system/ziti-router.service
 ZITI_ENROLL_TOKEN=
-# the router's address must be resolvable by other routers and edge identities (default: fully qualified hostname)
 
+# the router's address must be resolvable by other routers and edge identities (default: qualified hostname)
 ZITI_ROUTER_ADVERTISED_ADDRESS=
 # the advertised and listening port of the router (default: 3022)
 ZITI_ROUTER_PORT=3022
