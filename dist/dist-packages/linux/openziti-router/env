@@ -2,40 +2,36 @@
 # this is a systemd env file allowing simple assignments for ziti-controller.service environment
 #
 
-# disable JSON logging
-PFXLOG_NO_JSON=true
-
 #
 # for "ziti create config router edge" commands in bootstrap.bash
 #
 
-# address and port of the controller (required)
+# address of the controller (required)
 ZITI_CTRL_ADVERTISED_ADDRESS=
-ZITI_CTRL_ADVERTISED_PORT=
+# tcp port of the controller (default: 1280)
+ZITI_CTRL_ADVERTISED_PORT=1280
 
-# set identity filenames (default: hostname -s)
-ZITI_ROUTER_NAME=
-# the advertised address of the router is a domain name that can be resolved by all devices (default: hostname -f)
-ZITI_ROUTER_ADVERTISED_ADDRESS=
-# the advertised and listening port of the router (default: 80)
-ZITI_ROUTER_ADVERTISED_PORT=
-# the interface address on which to listen (default: 0.0.0.0)
-ZITI_ROUTER_BIND_ADDRESS=
-# where to listen for DNS requests in tproxy mode (default: udp://127.0.0.1:53)
-ZITI_ROUTER_TPROXY_RESOLVER=
-# type of router (default: edge, options: edge, fabric)
-ZITI_ROUTER_TYPE=edge
-
-# the mode of the router (default: host) requires that the router is administratively created with flag
-# --tunneler-enabled
-ZITI_ROUTER_MODE=host
-
-# create a config file unless it exists if "true", set "force" to overwrite
-ZITI_BOOTSTRAP_CONFIG=true
-
-# enroll unless already enrolled if "true", set "force" to overwrite key and cert (requires new enrollment token)
-ZITI_BOOTSTRAP_ENROLLMENT=true
 # for better security, leave this assignment empty and create a file readable only by root containing the
 # token and set "LoadCredential=ZITI_ENROLL_TOKEN:/opt/openziti/etc/router/.token" in
 # /lib/systemd/system/ziti-router.service
 ZITI_ENROLL_TOKEN=
+# the router's address must be resolvable by other routers and edge identities (default: fully qualified hostname)
+
+ZITI_ROUTER_ADVERTISED_ADDRESS=
+# the advertised and listening port of the router (default: 3022)
+ZITI_ROUTER_PORT=3022
+
+# the interface address on which to listen (default: 0.0.0.0)
+ZITI_ROUTER_BIND_ADDRESS="0.0.0.0"
+
+# where to listen for DNS requests in tproxy mode (default: udp://127.0.0.1:53)
+ZITI_ROUTER_TPROXY_RESOLVER="udp://127.0.0.1:53"
+
+# set identity filenames (default: unqualified hostname)
+# ZITI_ROUTER_NAME=
+
+# type of router (default: edge, options: edge, fabric)
+ZITI_ROUTER_TYPE=edge
+# the mode of the router (default: host) requires that the router is administratively created with flag
+# --tunneler-enabled
+ZITI_ROUTER_MODE=host

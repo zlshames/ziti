@@ -31,5 +31,10 @@ contents:
 
   - dst: /opt/openziti/etc/router/
     src: ./dist/dist-packages/linux/openziti-router/entrypoint.bash
+
+scripts:
+  postinstall: ./dist/dist-packages/linux/openziti-router/postinstall.bash
+  preremove: ./dist/dist-packages/linux/openziti-router/preremove.bash
+
 depends:
   - openziti  # ziti CLI

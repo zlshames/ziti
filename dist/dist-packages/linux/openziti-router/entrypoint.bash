@@ -7,12 +7,27 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
-# shellcheck disable=SC1090 # default path is set by the systemd service
+if ! (( $# )); then
+    # if no args, run the router with the default config file
+    set -- run config.yml
+elif [[ ${1} == run && -z ${2:-} ]]; then
+    # if first arg is "run" and second arg is empty, run the router with the default config file
+    set -- run config.yml
+fi
+
+# shellcheck disable=SC1090 # default path is assigned in env file
 source "${ZITI_ROUTER_BOOTSTRAP_BASH:-/opt/openziti/etc/router/bootstrap.bash}"
-# if no args or first arg is "run", bootstrap the router with the config file path as next arg, or default "config.yml"
-if [ "${1:-run}" == run ]; then
-    bootstrap "${2:-config.yml}"
+
+# if first arg is "run", bootstrap the router with the config file
+if [ "${1}" == run ]; then
+    bootstrap "${2}"
+fi
+
+# optionally renew certs at startup
+if [ "${ZITI_AUTO_RENEW_CERTS:-}" == true ]; then
+    # shellcheck disable=SC2068
+    set -- ${@} --extend
 fi
 
 # shellcheck disable=SC2068
-exec ziti router ${@:-run config.yml}
+exec ziti router ${@}

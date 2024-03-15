@@ -23,10 +23,10 @@ services:
     environment:
       # *** these are the important vars to set ***
       ZITI_CTRL_ADVERTISED_ADDRESS:                                   # domain name of the controller (required)
-      ZITI_CTRL_ADVERTISED_PORT: ${ZITI_CTRL_ADVERTISED_PORT:-443}    # exposed port of the controller
+      ZITI_CTRL_ADVERTISED_PORT: ${ZITI_CTRL_ADVERTISED_PORT:-1280}   # exposed port of the controller
       ZITI_ENROLL_TOKEN:                                              # enrollment token for this router (required)
       ZITI_ROUTER_ADVERTISED_ADDRESS:                                 # domain name for this router (default: the container ID [hostname -f])
-      ZITI_ROUTER_ADVERTISED_PORT: ${ZITI_ROUTER_ADVERTISED_PORT-80}  # exposed port for this router
+      ZITI_ROUTER_PORT: ${ZITI_ROUTER_PORT-3022}                      # exposed port for this router
       ZITI_ROUTER_MODE: ${ZITI_ROUTER_MODE:-host}                     # host, tproxy, tproxy (tproxy requires additional config below)
       # *** less relevant vars below ***
       ZITI_ROUTER_TYPE: edge           # edge, fabric
@@ -38,10 +38,10 @@ services:
       ZITI_TIME_FORMAT: utc
     command: run config.yml
     ports:
-      # ensure this port matches the value of ZITI_ROUTER_ADVERTISED_PORT in the container
-      - ${ZITI_INTERFACE:-0.0.0.0}:${ZITI_ROUTER_ADVERTISED_PORT:-80}:${ZITI_ROUTER_ADVERTISED_PORT:-80}
+      # ensure this port matches the value of ZITI_ROUTER_PORT in the container
+      - ${ZITI_INTERFACE:-0.0.0.0}:${ZITI_ROUTER_PORT:-3022}:${ZITI_ROUTER_PORT:-3022}
     expose:
-      - ${ZITI_ROUTER_ADVERTISED_PORT:-80}
+      - ${ZITI_ROUTER_PORT:-3022}
     restart: unless-stopped
     healthcheck:
       test:
@@ -61,6 +61,6 @@ services:
     # dns:
     #   - 127.0.0.1  # this router's Ziti resolver
     #   - 1.1.1.1    # any recursive resolver
-    # user: root     # required to create TPROXY routes
+    # user: root     # required to create TPROXY routes in a container?
     # cap_add:
-    #   - NET_ADMIN  # required to create TPROXY  rules
+    #   - NET_ADMIN  # required to create TPROXY rules

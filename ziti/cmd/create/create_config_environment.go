@@ -93,6 +93,7 @@ func NewCmdCreateConfigEnvironment() *cobra.Command {
 
 			environmentOptions.EnvVars = []EnvVar{
 				{constants.ZitiHomeVarName, constants.ZitiHomeVarDescription, data.ZitiHome},
+				{constants.ZitiNetworkNameVarName, constants.ZitiNetworkNameVarDescription, data.HostnameOrNetworkName},
 				{constants.PkiCtrlCertVarName, constants.PkiCtrlCertVarDescription, data.Controller.Identity.Cert},
 				{constants.PkiCtrlServerCertVarName, constants.PkiCtrlServerCertVarDescription, data.Controller.Identity.ServerCert},
 				{constants.PkiCtrlKeyVarName, constants.PkiCtrlKeyVarDescription, data.Controller.Identity.Key},
@@ -175,6 +176,7 @@ func NewCmdCreateConfigEnvironment() *cobra.Command {
 		"the config output.\n\nThe following environment variables can be set to override config values " +
 		"(current value is displayed):\n")
 	sb.WriteString(fmt.Sprintf("%-40s %-50s %s\n", constants.ZitiHomeVarName, constants.ZitiHomeVarDescription, data.ZitiHome))
+	sb.WriteString(fmt.Sprintf("%-40s %-50s %s\n", constants.ZitiNetworkNameVarName, constants.ZitiNetworkNameVarDescription, data.HostnameOrNetworkName))
 	sb.WriteString(fmt.Sprintf("%-40s %-50s %s\n", constants.PkiCtrlCertVarName, constants.PkiCtrlCertVarDescription, data.Controller.Identity.Cert))
 	sb.WriteString(fmt.Sprintf("%-40s %-50s %s\n", constants.PkiCtrlServerCertVarName, constants.PkiCtrlServerCertVarDescription, data.Controller.Identity.ServerCert))
 	sb.WriteString(fmt.Sprintf("%-40s %-50s %s\n", constants.PkiCtrlKeyVarName, constants.PkiCtrlKeyVarDescription, data.Controller.Identity.Key))

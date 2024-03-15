@@ -52,7 +52,7 @@ type CreateConfigOptions struct {
 
 type ConfigTemplateValues struct {
 	ZitiHome string
-	Hostname string
+	HostnameOrNetworkName string
 
 	Controller ControllerTemplateValues
 	Router     RouterTemplateValues
@@ -231,7 +231,7 @@ func (options *CreateConfigOptions) addCreateFlags(cmd *cobra.Command) {
 func (data *ConfigTemplateValues) PopulateConfigValues() {
 
 	// Get and add hostname to the params
-	data.Hostname = cmdHelper.HostnameOrNetworkName()
+	data.HostnameOrNetworkName = cmdHelper.HostnameOrNetworkName()
 
 	// Get and add ziti home to the params
 	zitiHome := cmdHelper.GetZitiHome()

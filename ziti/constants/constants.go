@@ -59,8 +59,11 @@ const (
 
 // Env Var Constants
 const (
-	ZitiHomeVarName        = "ZITI_HOME"
-	ZitiHomeVarDescription = "Root home directory for Ziti-related files"
+	ZitiHomeVarName                                  = "ZITI_HOME"
+	ZitiHomeVarDescription                           = "base dirname used to construct paths"
+
+	ZitiNetworkNameVarName                           = "ZITI_NETWORK_NAME"
+	ZitiNetworkNameVarDescription                    = "base filename used to construct paths"
 
 	PkiCtrlCertVarName                               = "ZITI_PKI_CTRL_CERT"
 	PkiCtrlCertVarDescription                        = "Path to controller's default identity client cert"
