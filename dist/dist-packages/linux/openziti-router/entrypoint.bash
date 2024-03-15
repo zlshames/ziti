@@ -10,7 +10,7 @@ set -o pipefail
 if ! (( $# )); then
     # if no args, run the router with the default config file
     set -- run config.yml
-elif [[ ${1} == run && -z ${2:-} ]]; then
+elif [[ "${1}" == run && -z "${2:-}" ]]; then
     # if first arg is "run" and second arg is empty, run the router with the default config file
     set -- run config.yml
 fi
